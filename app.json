@@ -1,30 +1,59 @@
 {
   "expo": {
-    "name": "whiskr",
+    "name": "Whiskr",
     "slug": "whiskr",
-    "version": "1.0.0",
+    "scheme": "whiskr",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FAF6F0"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.whiskr.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Whiskr uses your photo library to let you add a picture of your cat.",
+        "NSCameraUsageDescription": "Whiskr uses your camera to take a picture of your cat."
+      }
     },
     "android": {
+      "package": "com.whiskr.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FAF6F0"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-sqlite",
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "color": "#E89B5A"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Whiskr uses your photo library to let you add a picture of your cat."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }
