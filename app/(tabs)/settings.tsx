@@ -9,11 +9,34 @@ import { ensurePermissions, cancelAll } from '@/services/notifications';
 import { VET_DISCLAIMER } from '@/domain/calories';
 import { radii } from '@/theme/spacing';
 import { haptics } from '@/services/haptics';
+import { exportVetSummaryPdf } from '@/services/vetExport';
+import { resolveUnitSystem } from '@/utils/units';
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
   const { unitPref, theme, remindersOn, proUnlocked, set } = useSettingsStore();
-  const cats = useCatsStore((s) => s.cats);
+  const { cats, activeCatId } = useCatsStore();
+  const activeCat = cats.find((cat) => cat.id === activeCatId) ?? null;
+  const [exporting, setExporting] = React.useState(false);
+
+  async function exportVetSummary() {
+    if (!activeCat) {
+      Alert.alert('No cat selected', 'Add a cat before exporting a vet summary.');
+      return;
+    }
+    setExporting(true);
+    try {
+      await exportVetSummaryPdf({
+        cat: activeCat,
+        unitSystem: resolveUnitSystem(unitPref),
+      });
+    } catch (err) {
+      console.error('[settings] vet export failed', err);
+      Alert.alert('Export failed', 'Please try again in a moment.');
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
@@ -103,6 +126,22 @@ export default function SettingsScreen() {
               thumbColor={colors.surface}
             />
           </Row>
+        </Card>
+
+        <SectionTitle>Data</SectionTitle>
+        <Card>
+          <Text variant="displayS">Vet summary</Text>
+          <Text variant="body" muted style={{ marginTop: 6 }}>
+            Share {activeCat?.name ?? 'your cat'}'s profile, current feeding plan, and recent feeding history as a PDF.
+          </Text>
+          <Button
+            label="Export PDF"
+            variant="secondary"
+            loading={exporting}
+            disabled={!activeCat}
+            onPress={exportVetSummary}
+            style={{ marginTop: 14 }}
+          />
         </Card>
 
         <SectionTitle>Pro</SectionTitle>

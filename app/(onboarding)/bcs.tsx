@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame';
 import { BodyConditionPicker } from '@/components/cats/BodyConditionPicker';
 import { Text } from '@/components/primitives';
-import { useOnboardingStore } from '@/state/onboarding';
+import { ONBOARDING_TOTAL_STEPS, useOnboardingStore } from '@/state/onboarding';
 
 export default function BcsStep() {
   const { draft, update } = useOnboardingStore();
@@ -12,7 +12,7 @@ export default function BcsStep() {
   return (
     <OnboardingFrame
       step={6}
-      totalSteps={9}
+      totalSteps={ONBOARDING_TOTAL_STEPS}
       title="How does their body look?"
       subtitle="Pick the shape that best matches your cat. 5 is ideal."
       onPrimary={() => router.push('/(onboarding)/activity')}

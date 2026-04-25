@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { router } from 'expo-router';
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame';
 import { Input, Text, Card } from '@/components/primitives';
-import { useOnboardingStore } from '@/state/onboarding';
+import { ONBOARDING_TOTAL_STEPS, useOnboardingStore } from '@/state/onboarding';
 import { useSettingsStore } from '@/state/settings';
 import { resolveUnitSystem, lbsToKg, kgToLbs, weightUnitLabel } from '@/utils/units';
 
@@ -32,7 +32,7 @@ export default function WeightStep() {
   return (
     <OnboardingFrame
       step={4}
-      totalSteps={9}
+      totalSteps={ONBOARDING_TOTAL_STEPS}
       title={`How much does ${draft.name || 'your cat'} weigh?`}
       subtitle="An accurate weight really matters — it drives the calorie math."
       onPrimary={() => {

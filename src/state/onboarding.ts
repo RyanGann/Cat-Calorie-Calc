@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import type { ActivityLevel, Sex } from '@/domain/types';
+import type { ActivityLevel, PlanMode, Sex } from '@/domain/types';
+
+export const ONBOARDING_TOTAL_STEPS = 11;
 
 export type OnboardingDraft = {
   name: string;
@@ -11,6 +13,9 @@ export type OnboardingDraft = {
   neutered: boolean;
   bodyCondition: number;
   activityLevel: ActivityLevel;
+  foodIds: string[];
+  planMode: PlanMode;
+  mealsPerDay: 2 | 3 | 4;
 };
 
 type OnboardingState = {
@@ -29,6 +34,9 @@ const defaultDraft: OnboardingDraft = {
   neutered: true,
   bodyCondition: 5,
   activityLevel: 'moderate',
+  foodIds: [],
+  planMode: 'scheduled',
+  mealsPerDay: 3,
 };
 
 export const useOnboardingStore = create<OnboardingState>((set) => ({

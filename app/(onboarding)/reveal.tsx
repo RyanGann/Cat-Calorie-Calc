@@ -4,7 +4,7 @@ import { MotiView } from 'moti';
 import { router } from 'expo-router';
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame';
 import { Card, Text } from '@/components/primitives';
-import { useOnboardingStore } from '@/state/onboarding';
+import { ONBOARDING_TOTAL_STEPS, useOnboardingStore } from '@/state/onboarding';
 import { estimateDailyKcal, deriveLifeStage, ageInMonths, VET_DISCLAIMER } from '@/domain/calories';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radii } from '@/theme/spacing';
@@ -36,9 +36,9 @@ export default function RevealStep() {
   return (
     <OnboardingFrame
       step={8}
-      totalSteps={9}
+      totalSteps={ONBOARDING_TOTAL_STEPS}
       title={`${draft.name || 'Your cat'} needs`}
-      onPrimary={() => router.push('/(onboarding)/done')}
+      onPrimary={() => router.push('/(onboarding)/food')}
       primaryLabel="Looks good"
     >
       <View style={{ alignItems: 'center', marginVertical: 16 }}>

@@ -87,6 +87,9 @@ export type FoodDraft = {
   proteinPct?: number | null;
   fatPct?: number | null;
   moisturePct?: number | null;
+  fiberPct?: number | null;
+  ingredients?: string | null;
+  region?: string | null;
 };
 
 export async function insertCustomFood(draft: FoodDraft): Promise<Food> {
@@ -108,10 +111,10 @@ export async function insertCustomFood(draft: FoodDraft): Promise<Food> {
       draft.proteinPct ?? null,
       draft.fatPct ?? null,
       draft.moisturePct ?? null,
+      draft.fiberPct ?? null,
+      draft.ingredients ?? null,
       null,
-      null,
-      null,
-      null,
+      draft.region ?? null,
       null,
       now,
       now,
@@ -129,10 +132,10 @@ export async function insertCustomFood(draft: FoodDraft): Promise<Food> {
     proteinPct: draft.proteinPct ?? null,
     fatPct: draft.fatPct ?? null,
     moisturePct: draft.moisturePct ?? null,
-    fiberPct: null,
-    ingredients: null,
+    fiberPct: draft.fiberPct ?? null,
+    ingredients: draft.ingredients ?? null,
     barcode: null,
-    region: null,
+    region: draft.region ?? null,
     lastVerifiedAt: null,
   };
 }

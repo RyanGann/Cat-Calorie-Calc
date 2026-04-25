@@ -783,3 +783,28 @@ Up to 3 cats. Conversational onboarding that computes a kcal target (with vet di
 - [ ] TestFlight + Play beta with 20–30 real cat owners
 - [ ] Bug bash + polish sprint
 - [ ] Submit to both stores
+
+---
+
+## 14. Implementation Update — 2026-04-23
+
+This section records the current codebase state after the latest continuation pass, so the blueprint stays connected to the repo rather than remaining only aspirational.
+
+### Completed in this pass
+
+- Onboarding now continues past calorie reveal into food selection and meal-style setup before the reminder prompt.
+- Finishing onboarding can create a real active feeding plan, so a new user can land on Today with a usable next meal instead of an empty setup card.
+- Feeding-plan persistence is centralized in `src/services/feedingPlans.ts`, including cancellation of stale notification IDs before replacement plans are scheduled.
+- Custom food creation is now available at `app/food/new.tsx` and is linked from Foods, empty search states, Food Detail, and the plan editor.
+- Settings now exposes a PDF vet summary export with cat profile, current plan, recent feeding events, and the medical disclaimer.
+- A Maestro smoke flow was added for onboarding, logging a meal, and adding a custom food.
+- A pure domain helper for feeding-plan meal draft generation was added and covered by Vitest.
+
+### Still open from the MVP checklist
+
+- The food seed remains small at 30 SKUs and still needs source verification metadata expansion.
+- Cat profile view/edit/delete is still missing.
+- The plan editor has editable times and 1-2 foods, but not the final split slider or draggable timeline.
+- Notification action responses for Fed / Snooze / Skip still need app-side handling.
+- Maestro is configured, but it still needs to be run on real simulator/device targets and added to CI.
+- Store-readiness work remains: privacy policy, terms, screenshots, TestFlight/Play beta, manual notification reliability QA, and app listing copy.

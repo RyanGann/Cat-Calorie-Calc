@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame';
 import { Text } from '@/components/primitives';
-import { useOnboardingStore } from '@/state/onboarding';
+import { ONBOARDING_TOTAL_STEPS, useOnboardingStore } from '@/state/onboarding';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radii } from '@/theme/spacing';
 import { haptics } from '@/services/haptics';
@@ -38,7 +38,7 @@ export default function PhotoStep() {
   return (
     <OnboardingFrame
       step={2}
-      totalSteps={9}
+      totalSteps={ONBOARDING_TOTAL_STEPS}
       title={`Let's see ${name || 'your cat'}`}
       subtitle="Adding a photo makes reminders cozier. You can skip for now."
       onPrimary={() => router.push('/(onboarding)/age')}

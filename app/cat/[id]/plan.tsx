@@ -5,22 +5,15 @@ import { Screen, Text, Card, Button, Chip, IconButton, Input } from '@/component
 import { useTheme } from '@/theme/ThemeProvider';
 import { useCatsStore } from '@/state/cats';
 import { useSettingsStore } from '@/state/settings';
-import {
-  getActivePlan,
-  replaceActivePlan,
-  updateScheduledMealNotificationId,
-} from '@/db/repositories/plans';
+import { getActivePlan } from '@/db/repositories/plans';
 import { listFoods } from '@/db/repositories/foods';
 import { defaultMealTimes, minutesToTimeLabel, snapToMinuteGrid } from '@/domain/schedule';
 import { visualPortion, kcalToGrams, roundGrams } from '@/domain/portions';
 import { formatPortion, resolveUnitSystem } from '@/utils/units';
 import { summarizeFoodEnergy } from '@/utils/foodDisplay';
 import type { Food, PlanMode } from '@/domain/types';
-import {
-  ensurePermissions,
-  rescheduleMealsForPlan,
-} from '@/services/notifications';
-import { radii, spacing } from '@/theme/spacing';
+import { saveFeedingPlanFromSelection } from '@/services/feedingPlans';
+import { radii } from '@/theme/spacing';
 import { haptics } from '@/services/haptics';
 import { TimeStepper } from '@/components/feeding/TimeStepper';
 
@@ -29,10 +22,10 @@ type MealEntry = {
   foodId: string | null;
 };
 
-const MAX_FOODS = 3;
+const MAX_FOODS = 2;
 
 export default function PlanEditorScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, addFoodId } = useLocalSearchParams<{ id: string; addFoodId?: string }>();
   const { colors } = useTheme();
   const cat = useCatsStore((s) => s.cats.find((c) => c.id === id) ?? null);
   const unitPref = useSettingsStore((s) => s.unitPref);
@@ -74,6 +67,19 @@ export default function PlanEditorScreen() {
       }
     })();
   }, [id]);
+
+  React.useEffect(() => {
+    if (!addFoodId || allFoods.length === 0) return;
+    if (!allFoods.some((food) => food.id === addFoodId)) return;
+    setSelectedFoodIds((prev) => {
+      if (prev.includes(addFoodId)) return prev;
+      const next = [...prev, addFoodId].slice(0, MAX_FOODS);
+      setMeals((mealEntries) =>
+        mealEntries.map((meal) => (meal.foodId == null ? { ...meal, foodId: addFoodId } : meal)),
+      );
+      return next;
+    });
+  }, [addFoodId, allFoods]);
 
   // Keep meals array length in sync with meal style
   React.useEffect(() => {
@@ -128,7 +134,7 @@ export default function PlanEditorScreen() {
         return next;
       }
       if (prev.length >= MAX_FOODS) {
-        Alert.alert('Up to 3 foods', 'Remove one first to add another.');
+        Alert.alert('Up to 2 foods', 'Remove one first to add another.');
         return prev;
       }
       const next = [...prev, foodId];
@@ -160,47 +166,15 @@ export default function PlanEditorScreen() {
     }
     setSaving(true);
     try {
-      const plan = await replaceActivePlan({
-        catId: cat.id,
+      await saveFeedingPlanFromSelection({
+        cat,
         mode,
-        mealsPerDay: mode === 'grazer' ? null : mealsPerDay,
-        foods: selectedFoodIds.map((foodId, i, arr) => ({ foodId, kcalSharePct: 100 / arr.length })),
-        scheduledMeals: meals.map((m) => ({
-          timeOfDayMin: m.timeOfDayMin,
-          kcalTarget: perMealKcal,
-          foodId: m.foodId,
-        })),
+        mealsPerDay,
+        foodIds: selectedFoodIds,
+        mealEntries: meals,
+        remindersOn,
+        unitSystem: system,
       });
-
-      if (remindersOn) {
-        const ok = await ensurePermissions();
-        if (ok) {
-          const foodsById = new Map(selectedFoods.map((f) => [f.id, f]));
-          const mealById = new Map(plan.scheduledMeals.map((m) => [m.id, m]));
-          const foodNameForMeal = (mealId: string): string => {
-            const sm = mealById.get(mealId);
-            const food = sm?.foodId ? foodsById.get(sm.foodId) : null;
-            return food ? `${food.brand} ${food.name}` : 'food';
-          };
-          const portionForMeal = (mealId: string): string => {
-            const sm = mealById.get(mealId);
-            if (!sm) return '';
-            const food = sm.foodId ? foodsById.get(sm.foodId) : null;
-            if (!food) return '';
-            const vp = visualPortion(food, sm.kcalTarget);
-            return food.type === 'wet' && food.kcalPerCan ? vp.primaryLabel : formatPortion(vp.grams, system);
-          };
-          const results = await rescheduleMealsForPlan(plan.scheduledMeals, {
-            catName: cat.name,
-            catId: cat.id,
-            foodNameForMeal,
-            portionForMeal,
-          });
-          for (const r of results) {
-            await updateScheduledMealNotificationId(r.mealId, r.notificationId);
-          }
-        }
-      }
 
       haptics.success();
       router.back();
@@ -303,7 +277,20 @@ export default function PlanEditorScreen() {
           })}
         </Card>
       ) : query.length > 0 ? (
-        <Text variant="bodySm" subtle style={{ marginTop: 10 }}>No foods matched.</Text>
+        <Card style={{ marginTop: 10 }}>
+          <Text variant="label">No foods matched.</Text>
+          <Text variant="bodySm" muted style={{ marginTop: 4 }}>
+            Add it from the label, then Whiskr can use it in this plan.
+          </Text>
+          <Button
+            label="Add custom food"
+            variant="secondary"
+            onPress={() =>
+              router.push(`/food/new?query=${encodeURIComponent(query)}&returnToPlanCatId=${encodeURIComponent(cat.id)}`)
+            }
+            style={{ marginTop: 12 }}
+          />
+        </Card>
       ) : (
         <Text variant="bodySm" subtle style={{ marginTop: 10 }}>
           Type to search — Fancy Feast, Purina, Hill's, Royal Canin, and more.
