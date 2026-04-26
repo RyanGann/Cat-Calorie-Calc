@@ -9,6 +9,8 @@ import { useSettingsStore } from '@/state/settings';
 import { insertCat } from '@/db/repositories/cats';
 import { estimateDailyKcal, deriveLifeStage, ageInMonths } from '@/domain/calories';
 import { ensurePermissions } from '@/services/notifications';
+import { saveFeedingPlanFromSelection } from '@/services/feedingPlans';
+import { resolveUnitSystem } from '@/utils/units';
 import { useTheme } from '@/theme/ThemeProvider';
 import { haptics } from '@/services/haptics';
 
@@ -17,9 +19,10 @@ export default function DoneStep() {
   const upsert = useCatsStore((s) => s.upsertLocal);
   const setActive = useCatsStore((s) => s.setActiveCatId);
   const setSettings = useSettingsStore((s) => s.set);
-  const remindersOn = useSettingsStore((s) => s.remindersOn);
+  const unitPref = useSettingsStore((s) => s.unitPref);
   const { colors } = useTheme();
   const [saving, setSaving] = React.useState(false);
+  const hasPlanDraft = draft.foodIds.length > 0;
 
   async function finish(enableReminders: boolean) {
     if (draft.weightKg == null || draft.name.trim().length === 0) {
@@ -53,12 +56,25 @@ export default function DoneStep() {
       upsert(cat);
       setActive(cat.id);
 
+      let granted = false;
       if (enableReminders) {
-        const granted = await ensurePermissions();
+        granted = await ensurePermissions();
         await setSettings({ remindersOn: granted });
       } else {
         await setSettings({ remindersOn: false });
       }
+
+      if (draft.foodIds.length > 0) {
+        await saveFeedingPlanFromSelection({
+          cat,
+          foodIds: draft.foodIds,
+          mode: draft.planMode,
+          mealsPerDay: draft.mealsPerDay,
+          remindersOn: granted,
+          unitSystem: resolveUnitSystem(unitPref),
+        });
+      }
+
       await setSettings({ hasOnboarded: true });
       reset();
       haptics.success();
@@ -93,25 +109,29 @@ export default function DoneStep() {
           You're all set.
         </Text>
         <Text variant="bodyL" muted align="center" style={{ paddingHorizontal: 16 }}>
-          Want us to remind you when it's time to feed {draft.name || 'your cat'}?
+          {hasPlanDraft
+            ? `Want us to remind you when it's time to feed ${draft.name || 'your cat'}?`
+            : `You can set up ${draft.name || 'your cat'}'s food and reminders from Today when you're ready.`}
         </Text>
       </View>
       <View style={{ gap: 10 }}>
         <Button
-          label="Yes, send me reminders"
+          label={hasPlanDraft ? 'Yes, send me reminders' : 'Go to Today'}
           size="lg"
           fullWidth
           loading={saving}
-          onPress={() => finish(true)}
+          onPress={() => finish(hasPlanDraft)}
         />
-        <Button
-          label="Not now"
-          variant="ghost"
-          size="md"
-          fullWidth
-          haptic={null}
-          onPress={() => finish(false)}
-        />
+        {hasPlanDraft ? (
+          <Button
+            label="Not now"
+            variant="ghost"
+            size="md"
+            fullWidth
+            haptic={null}
+            onPress={() => finish(false)}
+          />
+        ) : null}
       </View>
     </Screen>
   );

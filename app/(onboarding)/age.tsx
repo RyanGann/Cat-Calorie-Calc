@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame';
 import { Chip, Input, Text } from '@/components/primitives';
-import { useOnboardingStore } from '@/state/onboarding';
+import { ONBOARDING_TOTAL_STEPS, useOnboardingStore } from '@/state/onboarding';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radii } from '@/theme/spacing';
 
@@ -42,7 +42,7 @@ export default function AgeStep() {
   return (
     <OnboardingFrame
       step={3}
-      totalSteps={9}
+      totalSteps={ONBOARDING_TOTAL_STEPS}
       title={`How old is ${draft.name || 'your cat'}?`}
       subtitle="A rough guess is fine — it helps us pick the right calorie target."
       onPrimary={handleContinue}

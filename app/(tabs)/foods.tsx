@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, Input, Chip, Card } from '@/components/primitives';
+import { Text, Input, Chip, Card, Button } from '@/components/primitives';
 import { useTheme } from '@/theme/ThemeProvider';
 import { listFoods } from '@/db/repositories/foods';
 import type { Food, FoodType } from '@/domain/types';
@@ -40,10 +40,19 @@ export default function FoodsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 }}>
-        <Text variant="displayL">Foods</Text>
-        <Text variant="body" muted style={{ marginTop: 4 }}>
-          {foods.length} foods · tap to add to a plan
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Text variant="displayL">Foods</Text>
+            <Text variant="body" muted style={{ marginTop: 4 }}>
+              {foods.length} foods · tap to inspect
+            </Text>
+          </View>
+          <Button
+            label="+ Custom"
+            variant="secondary"
+            onPress={() => router.push('/food/new')}
+          />
+        </View>
       </View>
       <View style={{ paddingHorizontal: 20, gap: 10 }}>
         <Input
@@ -71,8 +80,14 @@ export default function FoodsScreen() {
               <Card>
                 <Text variant="label">No foods matched.</Text>
                 <Text variant="bodySm" muted style={{ marginTop: 4 }}>
-                  Try a different brand or add your own — custom foods are coming soon.
+                  Add your own food from the label and use it in a plan.
                 </Text>
+                <Button
+                  label="Add custom food"
+                  variant="secondary"
+                  onPress={() => router.push(`/food/new?query=${encodeURIComponent(query)}`)}
+                  style={{ marginTop: 12 }}
+                />
               </Card>
             ) : null
           }

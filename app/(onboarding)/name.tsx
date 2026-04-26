@@ -2,7 +2,7 @@ import React from 'react';
 import { router } from 'expo-router';
 import { Input } from '@/components/primitives';
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame';
-import { useOnboardingStore } from '@/state/onboarding';
+import { ONBOARDING_TOTAL_STEPS, useOnboardingStore } from '@/state/onboarding';
 
 export default function NameStep() {
   const name = useOnboardingStore((s) => s.draft.name);
@@ -11,7 +11,7 @@ export default function NameStep() {
   return (
     <OnboardingFrame
       step={1}
-      totalSteps={9}
+      totalSteps={ONBOARDING_TOTAL_STEPS}
       title="What's your cat's name?"
       primaryLabel="Continue"
       primaryDisabled={name.trim().length === 0}

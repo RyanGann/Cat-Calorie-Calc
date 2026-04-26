@@ -4,7 +4,7 @@ import { MotiView } from 'moti';
 import { router } from 'expo-router';
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame';
 import { Text } from '@/components/primitives';
-import { useOnboardingStore } from '@/state/onboarding';
+import { ONBOARDING_TOTAL_STEPS, useOnboardingStore } from '@/state/onboarding';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radii } from '@/theme/spacing';
 import { haptics } from '@/services/haptics';
@@ -23,7 +23,7 @@ export default function ActivityStep() {
   return (
     <OnboardingFrame
       step={7}
-      totalSteps={9}
+      totalSteps={ONBOARDING_TOTAL_STEPS}
       title="How active are they?"
       onPrimary={() => router.push('/(onboarding)/reveal')}
     >

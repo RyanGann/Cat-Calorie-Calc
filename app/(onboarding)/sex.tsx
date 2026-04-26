@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { router } from 'expo-router';
 import { OnboardingFrame } from '@/components/onboarding/OnboardingFrame';
 import { Chip, Text } from '@/components/primitives';
-import { useOnboardingStore } from '@/state/onboarding';
+import { ONBOARDING_TOTAL_STEPS, useOnboardingStore } from '@/state/onboarding';
 
 export default function SexStep() {
   const { draft, update } = useOnboardingStore();
@@ -11,7 +11,7 @@ export default function SexStep() {
   return (
     <OnboardingFrame
       step={5}
-      totalSteps={9}
+      totalSteps={ONBOARDING_TOTAL_STEPS}
       title="A few more details"
       subtitle="Neutering and sex change calorie needs."
       onPrimary={() => router.push('/(onboarding)/bcs')}

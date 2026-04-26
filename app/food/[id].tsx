@@ -6,10 +6,12 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { getFood } from '@/db/repositories/foods';
 import type { Food } from '@/domain/types';
 import { radii } from '@/theme/spacing';
+import { useCatsStore } from '@/state/cats';
 
 export default function FoodDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
+  const activeCatId = useCatsStore((s) => s.activeCatId);
   const [food, setFood] = React.useState<Food | null>(null);
 
   React.useEffect(() => {
@@ -86,7 +88,13 @@ export default function FoodDetailScreen() {
 
       <Button
         label="Add to plan"
-        onPress={() => router.back()}
+        onPress={() => {
+          if (activeCatId) {
+            router.push(`/cat/${activeCatId}/plan?addFoodId=${food.id}`);
+          } else {
+            router.push('/(onboarding)/welcome');
+          }
+        }}
         size="lg"
         fullWidth
         style={{ marginTop: 28 }}
